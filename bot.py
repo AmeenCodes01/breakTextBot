@@ -33,21 +33,18 @@ async def send(ctx, *, message):
     messages[recipient_id].append(message)
     await ctx.send("Message stored for your friend.")
 
+
 @bot.command()
 async def break_time(ctx):
-    button = Button(label="Read Messages", style=ButtonStyle.primary)
+    # Get all stored messages for the user
+    msg = "\n".join(messages.get(ctx.author.id, []))
     
-    async def button_callback(interaction):
-        msg = "\n".join(messages[ctx.author.id])
-        await interaction.response.send_message(f"Your messages:\n{msg}", ephemeral=True)
-        messages[ctx.author.id] = []  # Clear the stored messages
-
-    button.callback = button_callback
-    view = discord.ui.View()
-    view.add_item(button)
-    
-    await ctx.send("You have messages! Click the button to read them.", view=view)
-
+    if msg:
+        await ctx.send(f"Your messages:\n{msg}")
+        # Clear the stored messages
+        messages[ctx.author.id] = []
+    else:
+        await ctx.send("You don't have any stored messages.")
 
 @bot.event
 async def on_message(message):
