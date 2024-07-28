@@ -2,13 +2,28 @@ import os
 import discord
 from discord.ext import commands
 from discord import Button, ButtonStyle
+from flask import Flask
+from threading import Thread
 
 intents = discord.Intents.default()
 intents.message_content = True
 intents.dm_messages = True
 bot = commands.Bot(command_prefix='!', intents=intents)
-
 messages = {}
+
+# Flask server setup
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "Bot is running!"
+
+def run():
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
+
+def keep_alive():  
+    t = Thread(target=run)
+    t.start()
 
 @bot.command()
 async def send(ctx, *, message):
@@ -44,5 +59,6 @@ async def break_time(ctx):
 async def on_message(message):
     if isinstance(message.channel, discord.DMChannel):
         await bot.process_commands(message)
+keep_alive()
 
 bot.run(os.getenv('BOT_TOKEN'))
