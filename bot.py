@@ -35,25 +35,19 @@ async def send(ctx, *, message):
 
 @bot.command()
 async def break_time(ctx):
-    user_id = ctx.author.id
-    if user_id in messages and messages[user_id]:
-        button = Button(label="Read Messages", style=ButtonStyle.primary)
-        
-        async def button_callback(interaction):
-            if interaction.user.id == user_id:
-                msg = "\n".join(messages[user_id])
-                await interaction.response.send_message(f"Your messages:\n{msg}", ephemeral=True)
-                messages[user_id] = []
-            else:
-                await interaction.response.send_message("These messages are not for you.", ephemeral=True)
+    button = Button(label="Read Messages", style=ButtonStyle.primary)
+    
+    async def button_callback(interaction):
+        msg = "\n".join(messages[ctx.author.id])
+        await interaction.response.send_message(f"Your messages:\n{msg}", ephemeral=True)
+        messages[ctx.author.id] = []  # Clear the stored messages
 
-        button.callback = button_callback
-        view = discord.ui.View()
-        view.add_item(button)
-        
-        await ctx.send("You have messages! Click the button to read them.", view=view)
-    else:
-        await ctx.send("You have no new messages.")
+    button.callback = button_callback
+    view = discord.ui.View()
+    view.add_item(button)
+    
+    await ctx.send("You have messages! Click the button to read them.", view=view)
+
 
 @bot.event
 async def on_message(message):
