@@ -4,6 +4,7 @@ from discord.ext import commands
 from discord import Button, ButtonStyle
 from flask import Flask
 from threading import Thread
+import asyncio
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -33,7 +34,6 @@ async def send(ctx, *, message):
     messages[recipient_id].append(message)
     await ctx.send("Message stored for your friend.")
 
-
 @bot.command()
 async def break_time(ctx):
     # Check if the user invoking the command is the FRIEND_USER_ID
@@ -50,11 +50,19 @@ async def break_time(ctx):
     else:
         await ctx.send("Sorry, only the designated friend can clear the messages.")
 
-
 @bot.event
 async def on_message(message):
     if isinstance(message.channel, discord.DMChannel):
         await bot.process_commands(message)
-keep_alive()
 
-bot.run(os.getenv('BOT_TOKEN'))
+async def main():
+    while True:
+        try:
+            await bot.start(os.getenv('BOT_TOKEN'))
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            await asyncio.sleep(60)  # Wait for 60 seconds before trying to reconnect
+
+if __name__ == "__main__":
+    keep_alive()
+    asyncio.run(main())
