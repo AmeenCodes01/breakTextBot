@@ -36,15 +36,20 @@ async def send(ctx, *, message):
 
 @bot.command()
 async def break_time(ctx):
-    # Get all stored messages for the user
-    msg = "\n".join(messages.get(ctx.author.id, []))
-    
-    if msg:
-        await ctx.send(f"Your messages:\n{msg}")
-        # Clear the stored messages
-        messages[ctx.author.id] = []
+    # Check if the user invoking the command is the FRIEND_USER_ID
+    if ctx.author.id == int(os.getenv('FRIEND_USER_ID')):
+        # Get all stored messages for the user
+        msg = "\n".join(messages.get(ctx.author.id, []))
+        
+        if msg:
+            await ctx.send(f"Your messages:\n{msg}")
+            # Clear the stored messages
+            messages[ctx.author.id] = []
+        else:
+            await ctx.send("You don't have any stored messages.")
     else:
-        await ctx.send("You don't have any stored messages.")
+        await ctx.send("Sorry, only the designated friend can clear the messages.")
+
 
 @bot.event
 async def on_message(message):
